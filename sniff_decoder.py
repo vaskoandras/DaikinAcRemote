@@ -1,6 +1,12 @@
 import re
 
-nibbles = list()
+pulses = list()
+
+pulses_short_list = []
+pulses_long_list = []
+spaces_short = []
+spaces_long = []
+spaces_leading = []
 
 with open('daikin_codes.txt', 'r') as f:
     file_content = f.read()
@@ -14,102 +20,91 @@ with open('daikin_codes.txt', 'r') as f:
             num = int(m.group('num'))
             if m.group('type') == 'pulse':
                 if num > 360 and num < 602:
-                    #print('pulse L')
-                    nibbles.append('p')
+                    pulses.append('p')
+                    pulses_short_list.append(num)
                 elif num > 3400 and num < 3560:
-                    #print('pulse H')
-                    nibbles.append('P')
+                    pulses.append('P')
+                    pulses_long_list.append(num)
                 else:
                     print("pulse ERROR - %s" % m.group('num'))
             if m.group('type') == 'space':
                 if num > 265 and num < 510:
-                    #print('space L')
-                    nibbles.append('s')
+                    pulses.append('s')
+                    spaces_short.append(num)
                 elif num > 1139 and num < 1360:
-                    #print('space H')
-                    nibbles.append('S')
+                    pulses.append('S')
+                    spaces_long.append(num)
                 elif num > 1650 and num < 1850:
-                    #print('space HH')
-                    nibbles.append('1')
-                elif num > 24500 and num < 25500:
-                    #print('space HHH')
-                    nibbles.append('2')
-                elif num > 34500 and num < 35500:
-                    #print('space HHHH')
-                    nibbles.append('3')
-                elif num > 200000:
-                    #print('---\n')
-                    nibbles.append('4')
+                    pulses.append('L')
+                    spaces_leading.append(num)
+                elif num > 24500:
+                    pulses.append('G')
                 else:
                     print("space ERROR - %s" % m.group('num'))
 
 index = 0
 output = ''
 
-while len(nibbles):
+while len(pulses):
     index = index + 1
-    nibble = nibbles.pop(0)
+    pulse = pulses.pop(0)
 
-    if nibble == 'p':
-        if len(nibbles) == 0:
+    if pulse == 'p':
+        if len(pulses) == 0:
             break
-        nibble_2 = nibbles.pop(0)
-        if nibble_2 == 's':
+        pulse_2 = pulses.pop(0)
+        if pulse_2 == 's':
             output = output + '0'
 
-        elif nibble_2 == 'S':
+        elif pulse_2 == 'S':
             output = output + '1'
 
-        elif nibble_2 == '2':
-            nibble_3 = nibbles.pop(0)
-            if nibble_3 != 'P':
-                raise Exception('break syntax: no P after 2')
-            nibble_3 = nibbles.pop(0)
-            if nibble_3 != '1':
-                raise Exception('break syntax: no HH after 2P')
+        if pulse_2 == 'G':
             output = output + '\n'
-
-        elif nibble_2 == '3':
-            nibble_3 = nibbles.pop(0)
-            if nibble_3 != 'P':
-                raise Exception('break syntax: no P after 2')
-            nibble_3 = nibbles.pop(0)
-            if nibble_3 != '1':
-                raise Exception('break syntax: no HH after 2P')
-            output = output + '\n'
-
-        if nibble_2 == '4':
-            output = output + '\n\n'
+            
+    elif pulse == 'P': # leading long pulse + gap
+        if len(pulses) == 0:
+            break
+        pulse_2 = pulses.pop(0)
+        if pulse_2 == 'L':
+            pass
+        else:
+            raise Exception('Leading pulse-space error')
 
 
 
-output2 = ''
-for line in output.splitlines():
-    newline = ''
-    num = 0
-    for i,c in enumerate(line):
-        if c == '1':
-            #num = num + 2**(7 - (i % 8))
-            num = num + 2**(i % 8)
-        if i % 8 == 7:
-            newline = newline + "%02X" % num
-            #print("%02X" % num)
-            num = 0
-    output2 = output2 + newline + '\n'
-
+print('Response in binary')
 print(output)
 
-for line in output.splitlines():
-    newline = ''
-    for i, c in enumerate(line):
-        if i % 8 == 7:
-            newline = newline + line[i:] + ' '
-    #print(newline)
-
+print('Response in binary with delimiters')
 for line in output.splitlines():
     newline = ''
     for i, c in enumerate(line):
         newline = newline + c + ';'
     print(newline)
 
+
+output2 = ''
+for line in output.splitlines():
+    newline = str()
+    num = 0
+    for i,c in enumerate(line):
+        if c == '1':
+            num = num + 2**(i % 8)
+        if i % 8 == 7:
+            newline = newline + "%02X" % num
+            num = 0
+    if (i % 8 != 7):
+        newline = newline + "??"
+    output2 = output2 + newline + '\n'
+
+
+print('Response in hex')
 print(output2)
+
+print("Short pulse length: %d" % int(round(sum(pulses_short_list)/len(pulses_short_list))))
+print("Long pulse length: %d" % int(round(sum(pulses_long_list)/len(pulses_long_list))))
+print("Short gap length: %d" % int(round(sum(spaces_short)/len(spaces_short))))
+print("Long gap length: %d" % int(round(sum(spaces_long)/len(spaces_long))))
+print("Leading gap length: %d" % int(round(sum(spaces_leading)/len(spaces_leading))))
+
