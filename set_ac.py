@@ -101,9 +101,12 @@ def create_lirc_conf(cmd):
     
     content = content + "    name cmd\n"
     
-    content = content + "    "
-    for raw_value in raw_values:
+    content = content + "      "
+    for i, raw_value in enumerate(raw_values):
         content = content + "%d " % raw_value
+        if i % 6 == 5:
+            content = content + "\n"
+            content = content + "      "
     content = content + "\n\n"
     content = content + "  end raw_codes\n\n"
     content = content + "end remote\n"
