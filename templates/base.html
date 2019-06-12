@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AcControl</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="acOnButton">
+            On
+        </button>
+        <button type="button" class="btn btn-secondary" id="temperatureUpButton">
+            Up
+        </button>
+        <button type="button" class="btn btn-secondary" id="temeperatureDownButton">
+            Down
+        </button>
+        <div class="alert alert-dark" role="alert" id="temperatureValue">
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="Basic example" id="modeButtonGroup">
+            <label class="btn btn-secondary">
+                <input type="radio">Auto</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">Cool</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">Heat</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">Dry</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">Fan</input>
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="Basic example" id="fanButtonGroup">
+            <label class="btn btn-secondary">
+                <input type="radio">1</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">2</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">3</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">4</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">5</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">Auto</input>
+            </label>
+            <label class="btn btn-secondary">
+                <input type="radio">Silent</input>
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="swingButton" onclick="setConfig()">
+            Swing
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="ecoButton" onclick="setConfig()">
+            Eco
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="powerfulButton" onclick="setConfig()">
+            Powerful
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="comfortButton" onclick="setConfig()">
+            Comfort
+        </button>
+
+    </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+<script>
+$.getJSON("{{ url_for("get_config") }}", function(data) {
+    console.log(data);
+    console.log(data['ac_on'])
+
+    if (data['ac_on']==1) {
+        $(acOnButton).addClass('active');
+    } else {
+        $(acOnButton).removeClass('active');
+    }
+    if (data['comfort']==1) {
+        $(comfortButton).addClass('active');
+    } else {
+        $(comfortButton).removeClass('active');
+    }
+    if (data['eco']==1) {
+        $(ecoButton).addClass('active');
+    } else {
+        $(ecoButton).removeClass('active');
+    }
+    if (data['powerful']==1) {
+        $(powerfulButton).addClass('active');
+    } else {
+        $(powerfulButton).removeClass('active');
+    }
+    if (data['swing']==1) {
+        $(swingButton).addClass('active');
+    } else {
+        $(swingButton).removeClass('active');
+    }
+
+    $(modeButtonGroup).find('label').each(function() {
+        if ($(this).text().trim().toLowerCase() == data['mode']) {
+            $(this).addClass('active');
+            $(this).addClass('focus');
+        } else {
+            $(this).removeClass('active');
+            $(this).removeClass('focus');
+        }
+    });
+
+    $(fanButtonGroup).find('label').each(function() {
+        if ($(this).text().trim().toLowerCase() == data['fan_mode']) {
+            $(this).addClass('active');
+            $(this).addClass('focus');
+        } else {
+            $(this).removeClass('active');
+            $(this).removeClass('focus');
+        }
+    });
+
+    if (data['temperature']) {
+        t = document.getElementById("temperatureValue");
+        t.innerHTML = data['temperature'];
+    }
+});
+
+
+$('#acOnButton').on('click', function(event) {
+    //console.log(this);
+    console.log($(this).val());
+    console.log($(this).hasClass('active'));
+});
+
+$('#modeButtonGroup .btn').on('change', function(event) {
+    var val = $(this).text().trim().toLowerCase();
+    json = {
+        "mode": $(this).text().trim().toLowerCase()
+    };
+    sendConfig(json);
+});
+
+$('#fanButtonGroup .btn').on('click', function(event) {
+    var val = $(this).text().trim().toLowerCase();
+    json = {
+        "fan_mode": $(this).text().trim().toLowerCase()
+    };
+    sendConfig(json);
+});
+
+function sendConfig(json) {
+    $.ajax({
+        type: "POST",
+        url: "{{url_for("set_config")}}",
+        data: JSON.stringify(json),
+        success: function(data) {
+            console.log(data)
+        },
+        dataType: 'json',
+        contentType: "application/json"
+    });
+}
+
+function setConfig() {
+    json = {
+        "ac_on": $(acOnButton).hasClass('active'),
+        "comfort": $(comfortButton).hasClass('active'),
+        "eco": $(ecoButton).hasClass('active'),
+        "powerful": $(powerfulButton).hasClass('active'),
+        "swing": $(swingButton).hasClass('active'),
+        }
+    $(modeButtonGroup).find('label').each(function() {
+        //console.log(this);
+        //console.log(this.classList);
+        if ($(this).hasClass('active')) {
+            json["mode"] = $(this).text().trim().toLowerCase();
+            console.log("ACTIVE");
+        }
+
+    });
+    $(modeButtonGroup).find('input').each(function() {
+        //console.log($(this).prop('checked'));
+        //console.log(this);
+    });
+    $(fanButtonGroup).find('label').each(function() {
+        if ($(this).hasClass('active')) {
+            json["fan_mode"] = $(this).text().trim().toLowerCase();
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: "{{url_for("set_config")}}",
+        data: JSON.stringify(json),
+        success: function(data) {
+            console.log(data)
+        },
+        dataType: 'json',
+        contentType: "application/json"
+    });
+}
+
+</script>
+
+</body>
+</html>
