@@ -7,8 +7,8 @@ pulses_long_list = []
 spaces_short = []
 spaces_long = []
 spaces_leading = []
-
-with open('daikin_codes.txt', 'r') as f:
+filename = 'mycode.txt'
+with open(filename, 'r') as f:
     file_content = f.read()
     lines = file_content.splitlines()
 
