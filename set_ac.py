@@ -2,6 +2,11 @@ from enum import Enum
 import pigpio
 import time
 import argparse
+from config import Config
+
+GPIO = 18
+FREQ_KHZ = 38.0
+GAP_S = 100 / 1000
 
 PULSE_SHORT = 482
 PULSE_LONG = 3486
@@ -10,12 +15,12 @@ GAP_LONG = 1257
 GAP_LEADING = 1698
 
 
-def get_chksum(cmd):
-    cksum = 0
+def get_checksum(cmd):
+    checksum = 0
     for c in cmd:
-        cksum = cksum + c
+        checksum = checksum + c
 
-    return cksum % 256
+    return checksum % 256
 
 
 class AcModes(Enum):
@@ -37,7 +42,18 @@ class FanModes(Enum):
     silent = 0xB
 
 
-def get_ac_command(is_ac_on, mode, temperature, is_swing_on, fan_mode, is_economy, is_powerful, on_timer, off_timer):
+def get_ac_command(is_ac_on, temperature, mode, fan_mode, is_swing_on, is_economy, is_powerful, on_timer, off_timer):
+    print("Creating command with the following settings")
+    print("AC on: %d" % is_ac_on)
+    print("Temperature: %d" % temperature)
+    print("Mode: %s" % mode)
+    print("Fan: %s" % fan_mode)
+    print("Swing: %d" % is_swing_on)
+    print("Economy mode: %d" % is_economy)
+    print("Power mode: %d" % is_powerful)
+    print("On timer: %d" % on_timer)
+    print("Off timer: %d" % off_timer)
+
     preamble = [0x11, 0xDA, 0x27, 0x00]
     ret = [0] * 14
     # byte 1 = 0
@@ -78,11 +94,12 @@ def get_ac_command(is_ac_on, mode, temperature, is_swing_on, fan_mode, is_econom
     ret[11] = 0xC1
     ret[12] = 0x80 + 0x4 * is_economy
     ret = preamble + ret
-    cksum = get_chksum(ret)
-    return ret + [cksum]
+    checksum = get_checksum(ret)
+    return ret + [checksum]
+
 
 def get_raw_values(cmd):
-    raw_values = []
+    raw_values = list()
     raw_values.append(PULSE_LONG)
     raw_values.append(GAP_LEADING)
 
@@ -118,12 +135,17 @@ def carrier(gpio, frequency, micros):
     return wf
 
 
-pi = pigpio.pi()
-
 def ir_transmit(code):
-    GPIO = 18
-    FREQ = 38.0
-    GAP_S = 100/1000
+    raw_code = get_raw_values(code)
+
+    if Config.DRY_RUN:
+        print("Sending code - dry run")
+        for code_byte in code:
+            print("%02X" % code_byte, end=' ')
+        print()
+        return
+
+    pi = pigpio.pi()
 
     pi.set_mode(GPIO, pigpio.OUTPUT)  # IR TX connected to this GPIO.
 
@@ -131,15 +153,14 @@ def ir_transmit(code):
 
     emit_time = time.time()
 
-
     # Create wave
     marks_wid = {}
     spaces_wid = {}
 
-    wave = [0] * len(code)
+    wave = [0] * len(raw_code)
 
-    for i in range(0, len(code)):
-        ci = code[i]
+    for i in range(0, len(raw_code)):
+        ci = raw_code[i]
         if i & 1:  # Space
             if ci not in spaces_wid:
                 pi.wave_add_generic([pigpio.pulse(0, 0, ci)])
@@ -147,7 +168,7 @@ def ir_transmit(code):
             wave[i] = spaces_wid[ci]
         else:  # Mark
             if ci not in marks_wid:
-                wf = carrier(GPIO, FREQ, ci)
+                wf = carrier(GPIO, FREQ_KHZ, ci)
                 pi.wave_add_generic(wf)
                 marks_wid[ci] = pi.wave_create()
             wave[i] = marks_wid[ci]
@@ -175,59 +196,53 @@ def ir_transmit(code):
     spaces_wid = {}
 
 
-p = argparse.ArgumentParser()
+def set_ac(on, temp, mode, fan, swing, economy, power, on_timer, off_timer):
+    on = int(on)
+    temp = int(temp)
+    mode = AcModes[mode.lower()]
+    fan = FanModes[fan.lower()]
+    swing = int(swing)
+    economy = int(economy)
+    power = int(power)
 
-p.add_argument("on", help="AC on [0,1]", type=int)
-p.add_argument("mode", help="mode [auto, cool, dry, heat, fan]", type=str)
-p.add_argument("temperature", help="temperature[18-30]", type=int)
-p.add_argument("swing", help="swing [0,1]", type=int)
-p.add_argument("fan", help="fan mode [l1-l5,auto,silent]", type=str)
-p.add_argument("economy", help="economy mode [0,1]", type=int)
-p.add_argument("power", help="power mode [0,1]", type=int)
-p.add_argument("on_timer", help="on timer [0-12]", type=int)
-p.add_argument("off_timer", help="off timer [0-9]", type=int)
+    cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00, 0xD7)
+    cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00, 0x54)
+    cmd3 = get_ac_command(on, temp, mode, fan, swing, economy, power, on_timer, off_timer)
 
-args = p.parse_args()
-
-on = args.on
-mode = AcModes[args.mode.lower()]
-temp = args.temperature
-swing = args.swing
-fan = FanModes[args.fan.lower()]
-economy = args.economy
-power = args.power
-on_timer = args.on_timer
-off_timer = args.off_timer
+    ir_transmit(cmd1)
+    ir_transmit(cmd2)
+    ir_transmit(cmd3)
 
 
-print("AC on: %d" % on)
-print("Mode: %s" % mode)
-print("Temperature: %d" % temp)
-print("Swing: %d" % swing)
-print("Fan: %s" % fan)
-print("Economy mode: %d" % economy)
-print("Power mode: %d" % power)
-print("On timer: %d" % on_timer)
-print("Off timer: %d" % off_timer)
+if __name__=='__main__':
+    p = argparse.ArgumentParser()
 
-cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00, 0xD7)
-cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00, 0x54)
+    p.add_argument("on", help="AC on [0,1]", type=int)
+    p.add_argument("mode", help="mode [auto, cool, dry, heat, fan]", type=str)
+    p.add_argument("temperature", help="temperature[18-30]", type=int)
+    p.add_argument("swing", help="swing [0,1]", type=int)
+    p.add_argument("fan", help="fan mode [l1-l5,auto,silent]", type=str)
+    p.add_argument("economy", help="economy mode [0,1]", type=int)
+    p.add_argument("power", help="power mode [0,1]", type=int)
+    p.add_argument("on_timer", help="on timer [0-12]", type=int)
+    p.add_argument("off_timer", help="off timer [0-9]", type=int)
 
-cmd3 = get_ac_command(on, mode, temp, swing, fan, economy, power, on_timer, off_timer)
+    args = p.parse_args()
 
-raw_values = get_raw_values(cmd1)
-#ir_transmit(raw_values)
+    cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00, 0xD7)
+    cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00, 0x54)
+    cmd3 = get_ac_command(
+        args.on,
+        args.temperature,
+        AcModes[args.mode.lower()],
+        FanModes[args.fan.lower()],
+        args.swing,
+        args.economy,
+        args.power,
+        args.on_timer,
+        args.off_timer
+    )
 
-raw_values = get_raw_values(cmd2)
-#ir_transmit(raw_values)
-
-raw_values = get_raw_values(cmd3)
-for c in cmd3:
-    print("%02X" % c, end=' ')
-
-print()
-#ir_transmit(raw_values)
-
-
-
-
+    ir_transmit(cmd1)
+    ir_transmit(cmd2)
+    ir_transmit(cmd3)

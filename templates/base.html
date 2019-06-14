@@ -5,25 +5,51 @@
     <title>AcControl</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/open-iconic-bootstrap.css') }}">
+    <style type="text/css">
+.container{
+    max-width:450px;
+}
+</style>
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="acOnButton">
-            On
-        </button>
-        <button type="button" class="btn btn-secondary" id="temperatureUpButton">
-            Up
-        </button>
-        <button type="button" class="btn btn-secondary" id="temeperatureDownButton">
-            Down
-        </button>
-        <div class="alert alert-dark" role="alert" id="temperatureValue">
-
+    <div class="row mt-3 text-center">
+        <div class="col text-center">
+            <h2>AC control</h2>
         </div>
     </div>
-    <div class="row">
-        <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="Basic example" id="modeButtonGroup">
+    <div class="row mt-3">
+        <div class="col-4 pr-1">
+            <button type="button" class="btn btn-primary btn-block" aria-pressed="false" autocomplete="off" id="acOnButton">
+                On <span class="oi oi-power-standby"aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="col-4 pl-1 text-center">
+
+        </div>
+        <div class="col-4 pl-1 text-center">
+            <span class="oi oi-power-standby h2" title="Power state" aria-hidden="true" id="powerIcon"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-4 pr-1">
+        <button type="button" class="btn btn-secondary btn-block" id="temperatureDownButton">
+            Down &#x2b9f;
+        </button>
+        </div>
+        <div class="col-4 px-1 text-center border h4">
+            <span  id="temperatureValue">-</span>
+            <span> &deg;C</span>
+        </div>
+        <div class="col-4 pl-1">
+        <button type="button" class="btn btn-secondary btn-block" id="temperatureUpButton">
+            Up &#x2b9d;
+        </button>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="btn-group btn-group-toggle col" data-toggle="buttons" role="group" aria-label="Basic example" id="modeButtonGroup">
             <label class="btn btn-secondary">
                 <input type="radio">Auto</input>
             </label>
@@ -41,8 +67,8 @@
             </label>
         </div>
     </div>
-    <div class="row">
-        <div class="btn-group btn-group-toggle" data-toggle="buttons" role="group" aria-label="Basic example" id="fanButtonGroup">
+    <div class="row mt-3">
+        <div class="btn-group btn-group-toggle col" data-toggle="buttons" role="group" aria-label="Basic example" id="fanButtonGroup">
             <label class="btn btn-secondary">
                 <input type="radio">1</input>
             </label>
@@ -66,19 +92,27 @@
             </label>
         </div>
     </div>
-    <div class="row">
-        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="swingButton" onclick="setConfig()">
+    <div class="row mt-3">
+        <div class="col pr-1">
+        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="swingButton">
             Swing
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="ecoButton" onclick="setConfig()">
+        </div>
+        <div class="col px-1">
+        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="ecoButton">
             Eco
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="powerfulButton" onclick="setConfig()">
-            Powerful
+        </div>
+        <div class="col px-1">
+        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="powerfulButton">
+            Power
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="comfortButton" onclick="setConfig()">
+        </div>
+        <div class="col pl-1">
+        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="comfortButton">
             Comfort
         </button>
+        </div>
 
     </div>
 
@@ -92,77 +126,46 @@
 
 <script>
 $.getJSON("{{ url_for("get_config") }}", function(data) {
-    console.log(data);
-    console.log(data['ac_on'])
+    parseConfig(data);
+});
 
-    if (data['ac_on']==1) {
-        $(acOnButton).addClass('active');
-    } else {
-        $(acOnButton).removeClass('active');
-    }
-    if (data['comfort']==1) {
-        $(comfortButton).addClass('active');
-    } else {
-        $(comfortButton).removeClass('active');
-    }
-    if (data['eco']==1) {
-        $(ecoButton).addClass('active');
-    } else {
-        $(ecoButton).removeClass('active');
-    }
-    if (data['powerful']==1) {
-        $(powerfulButton).addClass('active');
-    } else {
-        $(powerfulButton).removeClass('active');
-    }
-    if (data['swing']==1) {
-        $(swingButton).addClass('active');
-    } else {
-        $(swingButton).removeClass('active');
-    }
-
-    $(modeButtonGroup).find('label').each(function() {
-        if ($(this).text().trim().toLowerCase() == data['mode']) {
-            $(this).addClass('active');
-            $(this).addClass('focus');
-        } else {
-            $(this).removeClass('active');
-            $(this).removeClass('focus');
-        }
-    });
-
-    $(fanButtonGroup).find('label').each(function() {
-        if ($(this).text().trim().toLowerCase() == data['fan_mode']) {
-            $(this).addClass('active');
-            $(this).addClass('focus');
-        } else {
-            $(this).removeClass('active');
-            $(this).removeClass('focus');
-        }
-    });
-
-    if (data['temperature']) {
-        t = document.getElementById("temperatureValue");
-        t.innerHTML = data['temperature'];
-    }
+$('#acOnButton').on('click', function(event) {
+    $(this).toggleClass('active');
+    var val = $(this).hasClass('active') ? 1 : 0;
+    json = {
+        "ac_on": val
+    };
+    sendConfig(json);
 });
 
 
-$('#acOnButton').on('click', function(event) {
-    //console.log(this);
-    console.log($(this).val());
-    console.log($(this).hasClass('active'));
+$('#temperatureUpButton').on('click', function(event) {
+    var val = parseInt(document.getElementById("temperatureValue").innerHTML);
+    val = val + 1;
+    json = {
+        "temperature": val
+    };
+    sendConfig(json);
+});
+
+$('#temperatureDownButton').on('click', function(event) {
+    var val = parseInt(document.getElementById("temperatureValue").innerHTML);
+    val = val - 1;
+    json = {
+        "temperature": val
+    };
+    sendConfig(json);
 });
 
 $('#modeButtonGroup .btn').on('change', function(event) {
     var val = $(this).text().trim().toLowerCase();
     json = {
-        "mode": $(this).text().trim().toLowerCase()
+        "mode": val
     };
     sendConfig(json);
 });
 
-$('#fanButtonGroup .btn').on('click', function(event) {
+$('#fanButtonGroup .btn').on('change', function(event) {
     var val = $(this).text().trim().toLowerCase();
     json = {
         "fan_mode": $(this).text().trim().toLowerCase()
@@ -170,55 +173,151 @@ $('#fanButtonGroup .btn').on('click', function(event) {
     sendConfig(json);
 });
 
+$('#swingButton').on('click', function(event) {
+    $(this).toggleClass('active');
+    var val = $(this).hasClass('active') ? 1 : 0;
+    json = {
+        "swing": val
+    };
+    sendConfig(json);
+});
+
+$('#ecoButton').on('click', function(event) {
+    $(this).toggleClass('active');
+    var val = $(this).hasClass('active') ? 1 : 0;
+    json = {
+        "eco": val
+    };
+    sendConfig(json);
+});
+
+$('#powerfulButton').on('click', function(event) {
+    $(this).toggleClass('active');
+    var val = $(this).hasClass('active') ? 1 : 0;
+    json = {
+        "powerful": val
+    };
+    sendConfig(json);
+});
+
+$('#comfortButton').on('click', function(event) {
+    $(this).toggleClass('active');
+    var val = $(this).hasClass('active') ? 1 : 0;
+    json = {
+        "comfort": val
+    };
+    sendConfig(json);
+});
+
 function sendConfig(json) {
+    disableAll();
+    console.log("Out: " + json);
     $.ajax({
         type: "POST",
         url: "{{url_for("set_config")}}",
         data: JSON.stringify(json),
         success: function(data) {
-            console.log(data)
+            console.log("In: " + data);
+            parseConfig(data);
+            enableAll();
         },
         dataType: 'json',
         contentType: "application/json"
     });
 }
 
-function setConfig() {
-    json = {
-        "ac_on": $(acOnButton).hasClass('active'),
-        "comfort": $(comfortButton).hasClass('active'),
-        "eco": $(ecoButton).hasClass('active'),
-        "powerful": $(powerfulButton).hasClass('active'),
-        "swing": $(swingButton).hasClass('active'),
-        }
-    $(modeButtonGroup).find('label').each(function() {
-        //console.log(this);
-        //console.log(this.classList);
-        if ($(this).hasClass('active')) {
-            json["mode"] = $(this).text().trim().toLowerCase();
-            console.log("ACTIVE");
-        }
+function parseConfig(data) {
+    if (data['ac_on'] == 1) {
+        $('#acOnButton').addClass('active');
+        $('#powerIcon').css('color', 'green');
+    } else {
+        $('#acOnButton').removeClass('active');
+        $('#powerIcon').css('color', 'red');
+    }
+    if (data['comfort'] == 1) {
+        $('#comfortButton').addClass('active');
+    } else {
+        $('#comfortButton').removeClass('active');
+    }
+    if (data['eco'] == 1) {
+        $('#ecoButton').addClass('active');
+    } else {
+        $('#ecoButton').removeClass('active');
+    }
+    if (data['powerful']==1) {
+        $('#powerfulButton').addClass('active');
+    } else {
+        $('#powerfulButton').removeClass('active');
+    }
+    if (data['swing']==1) {
+        $('#swingButton').addClass('active');
+    } else {
+        $('#swingButton').removeClass('active');
+    }
 
-    });
-    $(modeButtonGroup).find('input').each(function() {
-        //console.log($(this).prop('checked'));
-        //console.log(this);
-    });
-    $(fanButtonGroup).find('label').each(function() {
-        if ($(this).hasClass('active')) {
-            json["fan_mode"] = $(this).text().trim().toLowerCase();
+    $('#modeButtonGroup').find('label').each(function() {
+        if ($(this).text().trim().toLowerCase() == data['mode']) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
         }
     });
-    $.ajax({
-        type: "POST",
-        url: "{{url_for("set_config")}}",
-        data: JSON.stringify(json),
-        success: function(data) {
-            console.log(data)
-        },
-        dataType: 'json',
-        contentType: "application/json"
+
+    $('#fanButtonGroup').find('label').each(function() {
+        if ($(this).text().trim().toLowerCase() == data['fan_mode']) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
     });
+
+    if (data['temperature']) {
+        $('#temperatureValue').text(data['temperature']);
+    }
+}
+
+function disableAll() {
+    $('#acOnButton').prop('disabled', true);
+    $('#modeButtonGroup').find('label').each(function() {
+        $(this).addClass('disabled');
+    });
+    $('#modeButtonGroup').find('input').each(function() {
+        $(this).prop('disabled', true);
+    });
+    $('#fanButtonGroup').find('label').each(function() {
+        $(this).addClass('disabled');
+    });
+    $('#fanButtonGroup').find('input').each(function() {
+        $(this).prop('disabled', true);
+    });
+    $('#temperatureUpButton').prop('disabled', true);
+    $('#temperatureDownButton').prop('disabled', true);
+    $('#swingButton').prop('disabled', true);
+    $('#ecoButton').prop('disabled', true);
+    $('#powerfulButton').prop('disabled', true);
+    $('#comfortButton').prop('disabled', true);
+}
+
+function enableAll() {
+    $('#acOnButton').prop('disabled', false);
+    $('#modeButtonGroup').find('label').each(function() {
+        $(this).removeClass('disabled');
+    });
+    $('#modeButtonGroup').find('input').each(function() {
+        $(this).prop('disabled', false);
+    });
+    $('#fanButtonGroup').find('label').each(function() {
+        $(this).removeClass('disabled');
+    });
+    $('#fanButtonGroup').find('input').each(function() {
+        $(this).prop('disabled', false);
+    });
+    $('#temperatureUpButton').prop('disabled', false);
+    $('#temperatureDownButton').prop('disabled', false);
+    $('#swingButton').prop('disabled', false);
+    $('#ecoButton').prop('disabled', false);
+    $('#powerfulButton').prop('disabled', false);
+    $('#comfortButton').prop('disabled', false);
 }
 
 </script>

@@ -1,15 +1,16 @@
 from config import Config
-import os
 from flask import Flask
 from flask import jsonify, request
 from flask import render_template
 from peewee import *
+import set_ac
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db = SqliteDatabase('data.db')
 db.connect()
+
 
 class AcData(Model):
     key = TextField()
@@ -19,7 +20,9 @@ class AcData(Model):
         database = db
         db_table = 'acdata'
 
+
 AcData.create_table()
+
 
 @app.route('/get/<key>')
 def get_key(key):
@@ -29,18 +32,19 @@ def get_key(key):
 
     return jsonify(item)
 
+
 def get_config_json():
     ac_on, _ = AcData.get_or_create(key='ac_on', defaults={'value': '0'})
-    temp, _ = AcData.get_or_create(key='temperature', defaults={'value': '22'})
+    temperature, _ = AcData.get_or_create(key='temperature', defaults={'value': '22'})
     mode, _ = AcData.get_or_create(key='mode', defaults={'value': 'auto'})
     swing, _ = AcData.get_or_create(key='swing', defaults={'value': '1'})
     fan_mode, _ = AcData.get_or_create(key='fan_mode', defaults={'value': 'auto'})
-    eco, _ = AcData.get_or_create(key='is_eco', defaults={'value': '0'})
-    powerful, _ = AcData.get_or_create(key='is_powerful', defaults={'value': '0'})
+    eco, _ = AcData.get_or_create(key='eco', defaults={'value': '0'})
+    powerful, _ = AcData.get_or_create(key='powerful', defaults={'value': '0'})
     comfort, _ = AcData.get_or_create(key='comfort', defaults={'value': '0'})
     return {
         'ac_on':ac_on.value,
-        'temperature': temp.value,
+        'temperature': temperature.value,
         'mode': mode.value,
         'swing': swing.value,
         'fan_mode': fan_mode.value,
@@ -57,25 +61,26 @@ def get_config():
 def set_config():
     json = request.get_json()
 
+    # Parse json
     ac_on = json.get("ac_on", None)
     if ac_on is not None:
         query = AcData.update(value=ac_on).where(AcData.key == 'ac_on')
         query.execute()
-    temp = json.get("temp", None)
-    if temp is not None:
-        query = AcData.update(value=temp).where(AcData.key == 'temp')
+    temperature = json.get("temperature", None)
+    if temperature is not None:
+        query = AcData.update(value=temperature).where(AcData.key == 'temperature')
         query.execute()
     mode = json.get("mode", None)
     if mode is not None:
         query = AcData.update(value=mode).where(AcData.key == 'mode')
         query.execute()
-    swing = json.get("swing", None)
-    if swing is not None:
-        query = AcData.update(value=swing).where(AcData.key == 'swing')
-        query.execute()
     fan_mode = json.get("fan_mode", None)
     if fan_mode is not None:
         query = AcData.update(value=fan_mode).where(AcData.key == 'fan_mode')
+        query.execute()
+    swing = json.get("swing", None)
+    if swing is not None:
+        query = AcData.update(value=swing).where(AcData.key == 'swing')
         query.execute()
     eco = json.get("eco", None)
     if eco is not None:
@@ -90,20 +95,27 @@ def set_config():
         query = AcData.update(value=comfort).where(AcData.key == 'comfort')
         query.execute()
 
-    print(get_config_json())
-    return jsonify(get_config_json())
+    # Set AC
+    ac_config = get_config_json()
+    set_ac.set_ac(
+        ac_config['ac_on'],
+        ac_config['temperature'],
+        ac_config['mode'],
+        ac_config['fan_mode'],
+        ac_config['swing'],
+        ac_config['eco'],
+        ac_config['powerful'],
+        0,
+        0,
+    )
+
+    return jsonify(ac_config)
+
 
 @app.route('/')
 def hello():
-    ac_on, _ = AcData.get_or_create(key='ac_on', defaults={'value': '0'})
-    temp, _ = AcData.get_or_create(key='temperature', defaults={'value': '22'})
-    mode, _ = AcData.get_or_create(key='mode', defaults={'value': 'auto'})
-    swing, _ = AcData.get_or_create(key='swing', defaults={'value': '1'})
-    fan_mode, _ = AcData.get_or_create(key='fan_mode', defaults={'value': 'auto'})
-    eco, _ = AcData.get_or_create(key='is_eco', defaults={'value': '0'})
-    powerful, _ = AcData.get_or_create(key='is_powerful', defaults={'value': '0'})
-    comfort, _ = AcData.get_or_create(key='comfort', defaults={'value': '0'})
     return render_template("base.html")
 
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
