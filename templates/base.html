@@ -8,11 +8,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/open-iconic-bootstrap.css') }}">
     <style type="text/css">
 .container{
-    max-width:450px;
+    max-width:550px;
+}
+.overlay {
+    background: #e9e9e9;
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.5;
+    z-index:2;
 }
 </style>
 </head>
-<body>
+<body style="background:beige;">
+<div class="overlay" id="overlay">
+</div>
 <div class="container">
     <div class="row mt-3 text-center">
         <div class="col text-center">
@@ -22,96 +35,96 @@
     <div class="row mt-3">
         <div class="col-4 pr-1">
             <button type="button" class="btn btn-primary btn-block" aria-pressed="false" autocomplete="off" id="acOnButton">
-                On <span class="oi oi-power-standby"aria-hidden="true"></span>
+                <span class="d-none d-sm-inline">On </span><span class="fas fa-power-off" aria-hidden="true"></span>
             </button>
         </div>
         <div class="col-4 pl-1 text-center">
 
         </div>
         <div class="col-4 pl-1 text-center">
-            <span class="oi oi-power-standby h2" title="Power state" aria-hidden="true" id="powerIcon"></span>
+            <i class="fas fa-power-off h2" id="powerIcon"></i>
         </div>
     </div>
     <div class="row mt-3">
         <div class="col-4 pr-1">
         <button type="button" class="btn btn-secondary btn-block" id="temperatureDownButton">
-            Down &#x2b9f;
+            <span class="d-none d-sm-inline">Down </span>&#x2b9f;
         </button>
         </div>
-        <div class="col-4 px-1 text-center border h4">
+        <div class="col-4 my-0 px-1 text-center border h4" style="background:lightgreen">
             <span  id="temperatureValue">-</span>
             <span> &deg;C</span>
         </div>
         <div class="col-4 pl-1">
         <button type="button" class="btn btn-secondary btn-block" id="temperatureUpButton">
-            Up &#x2b9d;
+            <span class="d-none d-sm-inline">Up </span>&#x2b9d;
         </button>
         </div>
     </div>
     <div class="row mt-3">
         <div class="btn-group btn-group-toggle col" data-toggle="buttons" role="group" aria-label="Basic example" id="modeButtonGroup">
-            <label class="btn btn-secondary">
-                <input type="radio">Auto</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="auto">Auto</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">Cool</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="cool"><span class="d-none d-sm-inline">Cool </span><i class="fas fa-snowflake"></i></input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">Heat</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="heat"><span class="d-none d-sm-inline">Heat </span><i class="fas fa-thermometer-full"></i></input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">Dry</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="dry"><span class="d-none d-sm-inline">Dry </span><i class="fas fa-tint-slash"></i></input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">Fan</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="fan"><span class="d-none d-sm-inline">Fan </span><i class="fas fa-fan"></i></input>
             </label>
         </div>
     </div>
     <div class="row mt-3">
         <div class="btn-group btn-group-toggle col" data-toggle="buttons" role="group" aria-label="Basic example" id="fanButtonGroup">
-            <label class="btn btn-secondary">
-                <input type="radio">1</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="auto">Auto</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">2</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="l1">1</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">3</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="l2">2</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">4</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="l3">3</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">5</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="l4">4</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">Auto</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="l5">5</input>
             </label>
-            <label class="btn btn-secondary">
-                <input type="radio">Silent</input>
+            <label class="btn btn-secondary px-1">
+                <input type="radio" value="silent"><span class="d-none d-sm-inline">Silent </span><i class="fas fa-moon"></i></input>
             </label>
         </div>
     </div>
     <div class="row mt-3">
         <div class="col pr-1">
-        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="swingButton">
-            Swing
-        </button>
+            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="swingButton">
+                <span class="d-none d-sm-inline">Swing </span>&#x269e;
+            </button>
         </div>
         <div class="col px-1">
-        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="ecoButton">
-            Eco
-        </button>
+            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="comfortButton" hidden>
+                Comfort
+            </button>
         </div>
         <div class="col px-1">
-        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="powerfulButton">
-            Power
-        </button>
+            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="ecoButton">
+                <span class="d-none d-sm-inline">Eco </span><i class="fas fa-leaf"></i>
+            </button>
         </div>
         <div class="col pl-1">
-        <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="comfortButton">
-            Comfort
-        </button>
+            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="powerfulButton">
+                <span class="d-none d-sm-inline">Power </span><i class="fas fa-dumbbell"></i>
+            </button>
         </div>
 
     </div>
@@ -138,7 +151,6 @@ $('#acOnButton').on('click', function(event) {
     sendConfig(json);
 });
 
-
 $('#temperatureUpButton').on('click', function(event) {
     var val = parseInt(document.getElementById("temperatureValue").innerHTML);
     val = val + 1;
@@ -158,7 +170,7 @@ $('#temperatureDownButton').on('click', function(event) {
 });
 
 $('#modeButtonGroup .btn').on('change', function(event) {
-    var val = $(this).text().trim().toLowerCase();
+    var val = $(this).find('input').val();
     json = {
         "mode": val
     };
@@ -166,9 +178,9 @@ $('#modeButtonGroup .btn').on('change', function(event) {
 });
 
 $('#fanButtonGroup .btn').on('change', function(event) {
-    var val = $(this).text().trim().toLowerCase();
+    var val = $(this).find('input').val();
     json = {
-        "fan_mode": $(this).text().trim().toLowerCase()
+        "fan_mode": val
     };
     sendConfig(json);
 });
@@ -210,16 +222,14 @@ $('#comfortButton').on('click', function(event) {
 });
 
 function sendConfig(json) {
-    disableAll();
-    console.log("Out: " + json);
+    disableAllControl();
     $.ajax({
         type: "POST",
         url: "{{url_for("set_config")}}",
         data: JSON.stringify(json),
         success: function(data) {
-            console.log("In: " + data);
             parseConfig(data);
-            enableAll();
+            enableAllControl();
         },
         dataType: 'json',
         contentType: "application/json"
@@ -256,7 +266,7 @@ function parseConfig(data) {
     }
 
     $('#modeButtonGroup').find('label').each(function() {
-        if ($(this).text().trim().toLowerCase() == data['mode']) {
+        if ($(this).find('input').val() == data['mode']) {
             $(this).addClass('active');
         } else {
             $(this).removeClass('active');
@@ -264,7 +274,7 @@ function parseConfig(data) {
     });
 
     $('#fanButtonGroup').find('label').each(function() {
-        if ($(this).text().trim().toLowerCase() == data['fan_mode']) {
+        if ($(this).find('input').val() == data['fan_mode']) {
             $(this).addClass('active');
         } else {
             $(this).removeClass('active');
@@ -276,48 +286,12 @@ function parseConfig(data) {
     }
 }
 
-function disableAll() {
-    $('#acOnButton').prop('disabled', true);
-    $('#modeButtonGroup').find('label').each(function() {
-        $(this).addClass('disabled');
-    });
-    $('#modeButtonGroup').find('input').each(function() {
-        $(this).prop('disabled', true);
-    });
-    $('#fanButtonGroup').find('label').each(function() {
-        $(this).addClass('disabled');
-    });
-    $('#fanButtonGroup').find('input').each(function() {
-        $(this).prop('disabled', true);
-    });
-    $('#temperatureUpButton').prop('disabled', true);
-    $('#temperatureDownButton').prop('disabled', true);
-    $('#swingButton').prop('disabled', true);
-    $('#ecoButton').prop('disabled', true);
-    $('#powerfulButton').prop('disabled', true);
-    $('#comfortButton').prop('disabled', true);
+function disableAllControl() {
+    $('#overlay').show();
 }
 
-function enableAll() {
-    $('#acOnButton').prop('disabled', false);
-    $('#modeButtonGroup').find('label').each(function() {
-        $(this).removeClass('disabled');
-    });
-    $('#modeButtonGroup').find('input').each(function() {
-        $(this).prop('disabled', false);
-    });
-    $('#fanButtonGroup').find('label').each(function() {
-        $(this).removeClass('disabled');
-    });
-    $('#fanButtonGroup').find('input').each(function() {
-        $(this).prop('disabled', false);
-    });
-    $('#temperatureUpButton').prop('disabled', false);
-    $('#temperatureDownButton').prop('disabled', false);
-    $('#swingButton').prop('disabled', false);
-    $('#ecoButton').prop('disabled', false);
-    $('#powerfulButton').prop('disabled', false);
-    $('#comfortButton').prop('disabled', false);
+function enableAllControl() {
+    $('#overlay').hide();
 }
 
 </script>
