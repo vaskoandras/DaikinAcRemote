@@ -138,11 +138,13 @@ def carrier(gpio, frequency, micros):
 def ir_transmit(code):
     raw_code = get_raw_values(code)
 
+    print("Sending code")
+    for code_byte in code:
+        print("%02X" % code_byte, end=' ')
+    print()
+
     if Config.DRY_RUN:
-        print("Sending code - dry run")
-        for code_byte in code:
-            print("%02X" % code_byte, end=' ')
-        print()
+        print("DRY RUN - not sending code")
         return
 
     pi = pigpio.pi()
@@ -196,7 +198,7 @@ def ir_transmit(code):
     spaces_wid = {}
 
 
-def set_ac(on, temp, mode, fan, swing, economy, power, on_timer, off_timer):
+def set_ac(on, temp, mode, fan, swing, economy, power, comfort, on_timer, off_timer):
     on = int(on)
     temp = int(temp)
     mode = AcModes[mode.lower()]
@@ -204,9 +206,14 @@ def set_ac(on, temp, mode, fan, swing, economy, power, on_timer, off_timer):
     swing = int(swing)
     economy = int(economy)
     power = int(power)
+    comfort = int(comfort)
 
-    cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00, 0xD7)
-    cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00, 0x54)
+    cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00)
+    if comfort:
+        cmd1[6] = 0x10
+    cmd1 = cmd1 + [get_checksum(cmd1)]
+    cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00)
+    cmd2 = cmd2 + [get_checksum(cmd2)]
     cmd3 = get_ac_command(on, temp, mode, fan, swing, economy, power, on_timer, off_timer)
 
     ir_transmit(cmd1)
@@ -224,13 +231,18 @@ if __name__=='__main__':
     p.add_argument("fan", help="fan mode [l1-l5,auto,silent]", type=str)
     p.add_argument("economy", help="economy mode [0,1]", type=int)
     p.add_argument("power", help="power mode [0,1]", type=int)
+    p.add_argument("comfort", help="comfort mode [0,1]", type=int)
     p.add_argument("on_timer", help="on timer [0-12]", type=int)
     p.add_argument("off_timer", help="off timer [0-9]", type=int)
 
     args = p.parse_args()
 
-    cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00, 0xD7)
-    cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00, 0x54)
+    cmd1 = (0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00)
+    if args.comfort:
+        cmd1[6] = 0x10
+    cmd1 = cmd1 + [get_checksum(cmd1)]
+    cmd2 = (0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00)
+    cmd2 = cmd2 + [get_checksum(cmd2)]
     cmd3 = get_ac_command(
         args.on,
         args.temperature,

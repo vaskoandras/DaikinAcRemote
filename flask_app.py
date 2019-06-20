@@ -105,6 +105,7 @@ def set_config():
         ac_config['swing'],
         ac_config['eco'],
         ac_config['powerful'],
+        ac_config['comfort'],
         0,
         0,
     )
