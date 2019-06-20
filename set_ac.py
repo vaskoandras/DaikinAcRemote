@@ -14,6 +14,8 @@ GAP_SHORT = 388
 GAP_LONG = 1257
 GAP_LEADING = 1698
 
+pi = pigpio.pi()
+
 
 def get_checksum(cmd):
     checksum = 0
@@ -146,8 +148,6 @@ def ir_transmit(code):
     if Config.DRY_RUN:
         print("DRY RUN - not sending code")
         return
-
-    pi = pigpio.pi()
 
     pi.set_mode(GPIO, pigpio.OUTPUT)  # IR TX connected to this GPIO.
 
