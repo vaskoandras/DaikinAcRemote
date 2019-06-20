@@ -57,6 +57,7 @@ def get_config_json():
 def get_config():
     return jsonify(get_config_json())
 
+
 @app.route('/set_config', methods = ['POST'])
 def set_config():
     json = request.get_json()
@@ -88,10 +89,22 @@ def set_config():
         query.execute()
     powerful = json.get("powerful", None)
     if powerful is not None:
+        if powerful:
+            query = AcData.update(value='auto').where(AcData.key == 'fan_mode')
+            query.execute()
+            query = AcData.update(value=0).where(AcData.key == 'comfort')
+            query.execute()
         query = AcData.update(value=powerful).where(AcData.key == 'powerful')
         query.execute()
     comfort = json.get("comfort", None)
     if comfort is not None:
+        if comfort:
+            query = AcData.update(value=0).where(AcData.key == 'swing')
+            query.execute()
+            query = AcData.update(value=0).where(AcData.key == 'powerful')
+            query.execute()
+            query = AcData.update(value='auto').where(AcData.key == 'fan_mode')
+            query.execute()
         query = AcData.update(value=comfort).where(AcData.key == 'comfort')
         query.execute()
 
