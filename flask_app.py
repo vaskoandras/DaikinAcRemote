@@ -8,7 +8,13 @@ import set_ac
 app = Flask(__name__)
 app.config.from_object(Config)
 
-db = SqliteDatabase('data.db')
+db = MySQLDatabase(
+    app.config.get('DB_DB'),
+    host=app.config.get('DB_HOST'),
+    port=3306,
+    user=app.config.get('DB_USERNAME'),
+    passwd=app.config.get('DB_PASSWORD')
+)
 db.connect()
 
 

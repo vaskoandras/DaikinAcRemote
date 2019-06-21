@@ -9,4 +9,5 @@ MarkupSafe==1.1.1
 peewee==3.9.6
 pigpio==1.42
 pycparser==2.19
+PyMySQL==0.9.3
 Werkzeug==0.15.4

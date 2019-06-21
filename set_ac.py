@@ -14,7 +14,8 @@ GAP_SHORT = 388
 GAP_LONG = 1257
 GAP_LEADING = 1698
 
-pi = pigpio.pi()
+if not Config.DRY_RUN:
+    pi = pigpio.pi()
 
 
 def get_checksum(cmd):
