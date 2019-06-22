@@ -15,7 +15,16 @@ db = MySQLDatabase(
     user=app.config.get('DB_USERNAME'),
     passwd=app.config.get('DB_PASSWORD')
 )
-db.connect()
+
+
+@app.before_request
+def _db_connect():
+    db.connect()
+
+@app.teardown_request
+def _db_close(exc):
+    if not db.is_closed():
+        db.close()
 
 
 class AcData(Model):
