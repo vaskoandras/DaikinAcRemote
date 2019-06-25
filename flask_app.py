@@ -4,13 +4,16 @@ from flask import jsonify, request
 from flask import render_template
 from peewee import *
 import set_ac
-from flask_peewee.db import Database
+from playhouse.pool import PooledMySQLDatabase
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-peewee_db = Database(app)
-db = peewee_db.database
+db = PooledMySQLDatabase(
+    'accontrol', host='dobozka.local', user='accontrol', passwd='accontrol',
+    max_connections=8,
+    stale_timeout=300
+)
 
 
 class AcData(Model):
