@@ -4,27 +4,13 @@ from flask import jsonify, request
 from flask import render_template
 from peewee import *
 import set_ac
+from flask_peewee.db import Database
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-db = MySQLDatabase(
-    app.config.get('DB_DB'),
-    host=app.config.get('DB_HOST'),
-    port=3306,
-    user=app.config.get('DB_USERNAME'),
-    passwd=app.config.get('DB_PASSWORD')
-)
-
-
-@app.before_request
-def _db_connect():
-    db.connect()
-
-@app.teardown_request
-def _db_close(exc):
-    if not db.is_closed():
-        db.close()
+peewee_db = Database(app)
+db = peewee_db.database
 
 
 class AcData(Model):
@@ -37,7 +23,6 @@ class AcData(Model):
 
 
 AcData.create_table()
-
 
 @app.route('/get/<key>')
 def get_key(key):
