@@ -139,8 +139,12 @@
 <script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 
 <script>
-$.getJSON("{{ url_for("get_config") }}", function(data) {
-    parseConfig(data);
+$(document).ready(function() {
+    disableAllControl();
+    $.getJSON("{{ url_for("get_config") }}", function(data) {
+        parseConfig(data);
+    });
+    enableAllControl();
 });
 
 $('#acOnButton').on('click', function(event) {
