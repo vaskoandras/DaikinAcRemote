@@ -11,10 +11,20 @@ app.config.from_object(Config)
 
 db = PooledMySQLDatabase(
     'accontrol', host='dobozka.local', user='accontrol', passwd='accontrol',
-    max_connections=8,
-    stale_timeout=300
+    max_connections=5,
+    stale_timeout=10,
 )
 
+
+@app.before_request
+def before_request():
+    if db.is_closed():
+        db.connect()
+
+@app.teardown_request
+def teardown_request(exception):
+    if not db.is_closed():
+        db.close()
 
 class AcData(Model):
     key = TextField()
