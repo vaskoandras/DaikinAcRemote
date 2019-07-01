@@ -11,7 +11,7 @@ app.config.from_object(Config)
 
 db = PooledMySQLDatabase(
     'accontrol', host='dobozka.local', user='accontrol', passwd='accontrol',
-    max_connections=5,
+    max_connections=1,
     stale_timeout=10,
 )
 
