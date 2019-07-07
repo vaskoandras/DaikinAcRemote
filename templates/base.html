@@ -26,7 +26,7 @@
     width: 75px;
     height: 75px;
     display: inline-block;
-    border-width: 4px;
+    border-width: 8px;
     border-color: rgba(255, 255, 255, 0.05);
     border-top-color: Black;
     animation: spin 1s infinite linear;
@@ -34,7 +34,7 @@
     border-style: solid;
 
     position: absolute;
-    left: 50%;
+    left: calc(50% - 38px);
     top: 100px;
 }
 
@@ -59,7 +59,7 @@
     </div>
     <div class="row mt-3">
         <div class="col-4 pr-1">
-            <button type="button" class="btn btn-primary btn-block" aria-pressed="false" autocomplete="off" id="acOnButton">
+            <button type="button" class="btn btn-primary btn-block shadow-none" aria-pressed="false" autocomplete="off" id="acOnButton">
                 <span class="d-none d-sm-inline">Power </span><span class="fas fa-power-off" aria-hidden="true"></span>
             </button>
         </div>
@@ -67,7 +67,7 @@
             <i class="fas fa-power-off h2" id="powerIcon"></i>
         </div>
         <div class="col-4 pl-1 text-right">
-            <button type="button" class="btn btn-info" aria-pressed="false" autocomplete="off" id="resyncButton">
+            <button type="button" class="btn btn-info shadow-none" aria-pressed="false" autocomplete="off" id="resyncButton">
                 <span class="fas fa-sync" aria-hidden="true"></span>
             </button>
         </div>
@@ -134,22 +134,22 @@
     </div>
     <div class="row mt-3">
         <div class="col pr-1">
-            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="swingButton">
+            <button type="button" class="btn btn-secondary btn-block shadow-none" aria-pressed="false" autocomplete="off" id="swingButton">
                 <span class="d-none d-sm-inline">Swing </span>&#x269e;
             </button>
         </div>
         <div class="col px-1">
-            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="comfortButton">
+            <button type="button" class="btn btn-secondary btn-block shadow-none" aria-pressed="false" autocomplete="off" id="comfortButton">
                 <span class="d-none d-sm-inline">Comfort </span><i class="fas fa-couch"></i>
             </button>
         </div>
         <div class="col px-1">
-            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="ecoButton">
+            <button type="button" class="btn btn-secondary btn-block shadow-none" aria-pressed="false" autocomplete="off" id="ecoButton">
                 <span class="d-none d-sm-inline">Eco </span><i class="fas fa-leaf"></i>
             </button>
         </div>
         <div class="col pl-1">
-            <button type="button" class="btn btn-secondary btn-block" aria-pressed="false" autocomplete="off" id="powerfulButton">
+            <button type="button" class="btn btn-secondary btn-block shadow-none" aria-pressed="false" autocomplete="off" id="powerfulButton">
                 <span class="d-none d-sm-inline">Power </span><i class="fas fa-dumbbell"></i>
             </button>
         </div>
