@@ -94,6 +94,9 @@ def set_config():
         query.execute()
     swing = json.get("swing", None)
     if swing is not None:
+        if swing:
+            query = AcData.update(value=0).where(AcData.key == 'comfort')
+            query.execute()
         query = AcData.update(value=swing).where(AcData.key == 'swing')
         query.execute()
     eco = json.get("eco", None)
