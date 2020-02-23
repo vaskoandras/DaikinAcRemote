@@ -69,7 +69,6 @@ def get_ac_command(is_ac_on, temperature, mode, fan_mode, is_swing_on, is_econom
     # Temperature
     if mode == AcModes.dry:
         ret[2] = 0xC0
-        fan_mode = FanModes.auto
     else:
         ret[2] = temperature * 2
     # byte 3 = 0
@@ -213,9 +212,14 @@ def set_ac(on, temp, mode, fan, swing, economy, power, comfort, on_timer, off_ti
     power = int(power)
     comfort = int(comfort)
 
+    if mode == AcModes.dry:
+        fan = FanModes.auto
+
     cmd1 = [0x11, 0xDA, 0x27, 0x00, 0xC5, 0x00, 0x00]
     if comfort:
         cmd1[6] = 0x10
+        fan = FanModes.auto
+        swing = 0
     cmd1 = cmd1 + [get_checksum(cmd1)]
     cmd2 = [0x11, 0xDA, 0x27, 0x00, 0x42, 0x00, 0x00]
     cmd2 = cmd2 + [get_checksum(cmd2)]
