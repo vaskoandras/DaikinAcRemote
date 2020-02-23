@@ -67,7 +67,12 @@ def get_ac_command(is_ac_on, temperature, mode, fan_mode, is_swing_on, is_econom
     # Mode
     ret[1] = ret[1] + ((mode.value << 4) & 0xf0)
     # Temperature
-    ret[2] = temperature * 2
+    if mode == AcModes.dry:
+        ret[2] = 0x0C
+        fan_mode = FanModes.auto
+        is_swing_on = 1
+    else:
+        ret[2] = temperature * 2
     # byte 3 = 0
     # Swing 
     ret[4] = 0x0f * is_swing_on
